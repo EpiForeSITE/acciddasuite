@@ -14,6 +14,9 @@ Example code:
      ) |>
      forecast(h = "4 weeks")
 ```
+I can also think of `tidymodels` and `modeltime` here.
+Note: [`tgsc`](https://www.jbs.cam.ac.uk/centres/health/tsgc/) looks promising.
+
 2. [epipredict](https://cmu-delphi.github.io/epipredict/)\
 A wrapper package for `tidymodels` with convenience functions for epidemiological forecasting.
 Example code:
@@ -80,5 +83,24 @@ estimates <- epinow(
 ```
 
 5. [`hubverse`](https://hubverse-org.r-universe.dev/hubverse)\
-   A collection of packages to to standardise epidemic forecasts.
-   TOCOMPLETE
+   A collection of packages to to standardise epidemic forecasts.\
+   `hubEnsembles` to aggregate forecasts from multiple models.
+   `hubEvals` to evaluate forecasts.
+
+
+It is clear and simple, but it can be slightly tightened and made more direct. Here is a cleaner version with improved flow and consistency, without changing the meaning.
+
+## Discussion
+
+**Maintenance burden:**
+This would involve wrapping fast moving, complex packages maintained by different teams. Any upstream API change would risk breaking the package. We would inherit technical debt without adding new core methodology.
+
+**Functionality overlap:**
+`epipredict`, `fable`, `tidymodels`, and `modeltime` already provide general forecasting frameworks that can be readily applied to epidemiological data, including ensemble methods and model evaluation.
+
+**Suggested approach:**
+If needed, we could provide a very minimal example notebook demonstrating how to use existing tools, for example fitting three models to forecast influenza cases four weeks ahead and evaluating their performance.
+
+There are already comprehensive resources from [Delphi](https://cmu-delphi.github.io/delphi-tooling-book/sliding-forecasters.html) and the [EpiR Handbook](https://www.epirhandbook.com/en/new_pages/epidemic_models.html), and `tidymodels` itself is supported by high quality vignettes and books.
+
+A more useful contribution may be to provide a GitHub based support platform with office hours, where we answer questions, support teams, and help debug or improve their code.
