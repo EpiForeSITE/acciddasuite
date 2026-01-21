@@ -1,6 +1,6 @@
 ---
 title: "acciddasuite"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{acciddasuite}
   %\VignetteEngine{knitr::rmarkdown}
@@ -26,272 +26,87 @@ We will aim to demonstrate the basic steps in a forecasting task, as defined by 
 
 # Statistical Modelling
 
-## Required Packages
-
-The package `tsibble` handles time series data and `fable` [provides forecasting models](https://fable.tidyverts.org/reference/index.html). We also use `fable.prophet` for [Meta's Prophet model](https://facebook.github.io/prophet/).
-
-```{r, setup}
-library(tidyverse) # for general data manipulation and plotting
-library(pipetime) # time operations in R pipelines (|>)
-library(tsibble)
-library(fable)
-library(fable.prophet) # Prophet model
-```
-
-## Loading Data
+##  `get_data`
 
 **Ideally, you would load your own data here**.
 
-For demonstration purposes, we will load data from the [CDC National Health Safety Network](https://data.cdc.gov/Public-Health-Surveillance/Weekly-Hospital-Respiratory-Data-HRD-Metrics-by-Ju/mpgq-jmmr/about_data). The data dictionary is available [here](https://dev.socrata.com/foundry/data.cdc.gov/mpgq-jmmr) and provides [instructions](https://dev.socrata.com/foundry/data.cdc.gov/mpgq-jmmr#:~:text=from%20Prior%20Week-,Code%20Snippets) on how to load the data in R using the `RSocrata` package.
+For demonstration purposes, we will load data from the [CDC National Health Safety Network](https://data.cdc.gov/Public-Health-Surveillance/Weekly-Hospital-Respiratory-Data-HRD-Metrics-by-Ju/mpgq-jmmr/about_data). The data dictionary is available [here](https://dev.socrata.com/foundry/data.cdc.gov/mpgq-jmmr).
 
-We extract data for California, Texas, and New York starting from March 1, 2022.
-
-```{r, epidatr}
-library(RSocrata)
-
-df <- read.socrata(
-  "https://data.cdc.gov/api/v3/views/mpgq-jmmr"
-) |>
-  filter(jurisdiction %in% c("CA", "TX", "NY")) |>
-  transmute(
-    date = as.Date(weekendingdate),
-    state = jurisdiction,
-    value = totalconffluhosppats
-  ) |>
-  filter(date >= as.Date("2022-03-01")) |>
-  tsibble::as_tsibble(index = date, key = state)
-
-df |>
-  autoplot(value) +
-  labs(
-    title = "Weekly Flu Hospitalisations",
-    y = "Total Confirmed Patients",
-    x = "Week Ending"
-  ) +
-  theme_classic()
+```{r, get_data}
+library(dplyr)
+library(ggplot2)
+library(pipetime)
+library(fabletools)
+library(acciddasuite)
+df <- get_data(pathogen = "covid", geo_values = "ny")
+summary(df)
 
 ```
 
 ## Time Series Cross-Validation
 
-To evaluate predictive performance, we employ time series cross-validation (rolling forecasting origin). We fit models using only data available up to a specific cutoff point, then forecast 4 weeks ahead.\
-Initial training window: 50 weeks. Step size: Advance the cutoff by 4 weeks.\
-Forecast horizon ($h$): 4 weeks.\
+To evaluate predictive performance, we employ *time series cross-validation*. We fit models using the data available up to a specific cutoff point (`eval_start_date`), then forecast `h` weeks ahead with expanding windows. You do not want to `eval_start_date` to be too far back in time as it can be computationally expensive.
 
-```{r, stretch}
-ts <- df |>
-  stretch_tsibble(.init = 50, .step = 4)
+We visualise the data and decide on the `eval_start_date`.
+
+```{r, tscv-setup}
+# We ony evaluate on the last 30 days of data for demonstration purposes
+eval_start_date <- max(df$target_end_date) - 30
+
+df |>
+  ggplot(aes(x = target_end_date, y = observation)) +
+  geom_line() +
+  geom_vline(
+    xintercept = eval_start_date,
+    linetype = "dashed",
+    color = "red"
+  ) +
+  annotate(
+    "label",
+    x = eval_start_date,
+    y = max(df$observation) * 0.8,
+    label = "Model evaluation\nstarts here",
+    color = "red"
+  ) +
+  scale_x_date(date_labels = "%b\n%y", breaks = "5 months") +
+  theme_classic()
 ```
 
-## Model Specification and Forecasting
+Default models are:\ 
+**Naïve (Random Walk RW)**: A baseline model carrying forward the last observation.\
+**ETS**: Exponential Smoothing state space model (automatically selected).\ **ARIMA**: Auto-Regressive Integrated Moving Average model (automatically selected).
 
-We compare three forecasting approaches on the folded data: **Naïve (Random Walk RW)**: A baseline model carrying forward the last observation. **ETS**: Exponential Smoothing state space model (automatically selected). **ARIMA**: Auto-Regressive Integrated Moving Average model (automatically selected). The code below fits these models to every window defined in `ts` and generates a 4-week forecast for each. The below can take up to 3min on a standard laptop.
 
 ```{r, models}
-fcast <- ts |>
-  model(
-    RW = RW(value),
-    ETS = ETS(value),
-    ARIMA = ARIMA(value),
-    THETA = THETA(value),
-    PROPHET = fable.prophet::prophet(value)
-  ) |>
-  time_pipe("model_fit") |>
-  forecast(h = 4) |>
+fcast = get_fcast(
+  df,
+  eval_start_date = eval_start_date,
+  top_n = 4, # Select top 4 models
+  h = 4 # forecast 4 weeks ahead
+) |>
   time_pipe("forecasting")
+
+fcast
+fcast$plot
 ```
 
-## Model Evaluation
 
-### By State
+## Adding `extra_models`
+Example using `EspiEstim` with `projections`.
+```{r, extra-models, eval = FALSE}
 
-We assess which model performed best on average for each state. We calculate the RMSE (Root Mean Squared Error) across all rolling windows, grouped by state and model.
-
-```{r, state-evaluation}
-model_colours <- c(
-  "RW" = "#2E86C1",
-  "ETS" = "#28B463",
-  "ARIMA" = "#CB4335",
-  "THETA" = "#AF7AC5",
-  "PROPHET" = "#F39C12"
+extra <- list(
+  CUSTOM_ARIMA = ARIMA(observation ~ pdq(1,1,0)),
+  PROPHET = fable.prophet::prophet(observation ~ season("yearly"))
+  #EPIESTIM = ...
 )
 
-state_accuracy <- fcast |>
-  fabletools::accuracy(df, by = c("state", ".model")) |>
-  select(state, .model, RMSE) |>
-  (\(x) {
-    bind_rows(
-      x,
-      x |>
-        group_by(.model) |>
-        summarise(
-          state = "ALL",
-          RMSE = mean(RMSE, na.rm = TRUE),
-          .groups = "drop"
-        )
-    )
-  })()
-
-state_accuracy |>
-  group_by(state) |>
-  mutate(.model = fct_reorder(.model, RMSE)) |>
-  ggplot(aes(x = .model, y = RMSE, fill = .model)) +
-  facet_grid(rows = vars(state)) +
-  geom_col() +
-  coord_flip() +
-  scale_fill_manual(values = model_colours) +
-  theme_classic() +
-  theme(legend.position = "none")
-
-```
-
-### Over Time
-
-Aggregated metrics can hide temporal instability (*i.e.* a model failing during a specific outbreak peak). Here we compute the RMSE for rolling window (fold) to visualise how model performance evolves over the epidemic curve.
-
-```{r, time-evaluation}
-fold_accuracy <- fcast |>
-  fabletools::accuracy(df, by = c(".model", "state", ".id"))
-
-#Map .id back to the specific cutoff date for plotting
-fold_dates <- ts |>
-  as_tibble() |>
-  group_by(.id) |>
-  summarise(cutoff_date = max(date))
-
-
-left_join(fold_accuracy, fold_dates, by = ".id") |>
-  ggplot(aes(x = cutoff_date, y = RMSE, color = .model)) +
-  geom_line() +
-  facet_grid(rows = vars(state)) +
-  scale_color_manual(values = model_colours) +
-  theme_classic()
-```
-
-## Visualising Forecasts with Intervals
-
-We can also visualise the rolling forecasts along with their 95% prediction intervals.
-
-```{r, forecast-plot}
-fcast |>
-  hilo(level = 95) |>
-  mutate(
-    lower = `95%`$lower,
-    upper = `95%`$upper
-  ) |>
-  ggplot(aes(x = date, group = interaction(.id, .model))) +
-  geom_ribbon(
-    aes(ymin = lower, ymax = upper, fill = .model),
-    alpha = 0.2
-  ) +
-  geom_line(aes(y = .mean, color = .model), linewidth = 0.5) +
-  geom_line(
-    data = df,
-    aes(x = date, y = value, group = state),
-    color = "black",
-    linewidth = 0.5,
-    inherit.aes = FALSE
-  ) +
-  facet_grid(rows = vars(state)) +
-  labs(
-    title = "Rolling Forecasts with 95% Confidence Intervals",
-    subtitle = "Black line = Observed Data; Coloured bands = Retrospective Forecasts",
-    y = "Hospitalisations",
-    x = "Date"
-  ) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-```
-
-## Forecasting Future Values
-
-Finally, we fit the best-performing model (based on prior evaluation) to the entire dataset and generate forecasts for the next 4 weeks. We also show NNETAR as an alternative model but it takes a lot of time to fit (hence why we didn't use it in the previous steps). This can take up to 1min on a standard laptop.
-
-```{r, final-forecast}
-finalcast <- df |>
-  model(
-    THETA = THETA(value),
-    NNETAR = NNETAR(value, n_networks = 1)
-  ) |>
-  forecast(h = 10) |> #10 weeks ahead
-  time_pipe("final_forecast")
-
-finalcast |>
-  autoplot(df) +
-  theme_classic() +
-  facet_grid(rows = vars(state))
-```
-
-# Epidemic Models
-
-Epidemiologists are often interested in characterising the dynamics of infectious diseases, i.e. the mechanisms that drive transmission.\
-Rather than relying solely on statistical models, epidemic models can be used to explicitly represent the mechanisms of transmission. Here we demonstrate how to estimate the time-varying reproduction number (Rt) and use it to generate short-term forecasts.
-Rt represents the average number of secondary infections generated by a primary case at time t. When Rt > 1, the epidemic is growing; when Rt < 1, it is declining.
-
-## Rt Estimation
-
-### Required Packages
-
-```{r, rt-setup}
-library(EpiEstim)
-#library(EpiNow2)
-library(projections)
-library(incidence)
-```
-
-### Estimating Rt
-
-```{r, rt-estimation}
-states_Rt <- tibble(
-  state = c("CA", "TX", "NY"),
-  data = map(
-    state,
-    ~ as_tibble(df) |>
-      filter(state == .x) |>
-      select(date, value) |>
-      rename(I = value)
-  ),
-  R = map(
-    data,
-    ~ EpiEstim::estimate_R(
-      incid = .x$I,
-      method = "parametric_si",
-      config = EpiEstim::make_config(
-        list(
-          mean_si = 3.96,
-          std_si = 4.75
-        )
-      )
-    )
-  )
-)
-
-# projections for California
-CA <- states_Rt |>
-  filter(state == "CA")
-CA
-
-incidence_obj <- pluck(CA, "data", 1) |>
-  mutate(I = round(I)) |> #we convert average to counts
-  uncount(weights = I) |>
-  pluck("date") |>
-  incidence()
-
-proj <- project(
-  x = incidence_obj,
-  R = pluck(CA, "R", 1, "R", "Median(R)"), # Rt distribution
-  si = pluck(CA, "R", 1, "si_distr")[-1], # si starts at day 1
-  n_sim = 100, # number of trajectories to simulate
-  n_days = 30, # number of days to make projections over
-  R_fix_within = FALSE # keep the same value of R every day (TRUE/FALSE)
-)
-
-cum_proj <- proj |> cumulate()
-plot(incidence_obj) |>
-  add_projections(cum_proj, boxplots = FALSE, quantiles = c(0.25, 0.75)) +
-  scale_x_date(
-    limits = c(max(incidence_obj$dates) - 365, max(incidence_obj$dates) + 30)
-  ) +
-  theme_classic()
-
+fcast = get_fcast(
+  df,
+  eval_start_date = eval_start_date,
+  top_n = 4, # Select top 4 models
+  h = 4, # forecast 4 weeks ahead,
+  extra_models = extra
+) |>
+  time_pipe("forecasting")
 ```

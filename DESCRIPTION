@@ -9,7 +9,24 @@ License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
+Imports:
+    fable,
+    fabletools,
+    progressr,
+    feasts,
+    tsibble,
+    dplyr,
+    ggplot2,
+    distributional,
+    lubridate,
+    epidatr,
+    pipetime,
+    rlang
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    devtools
 VignetteBuilder: knitr
+Depends: 
+    R (>= 3.5)
+LazyData: true
