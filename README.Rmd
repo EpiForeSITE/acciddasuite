@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# acciddasuite <img src="man/figures/logo.png" align="right" height="139" alt="" />
+# acciddasuite <a href="https://accidda.github.io/acciddasuite/"><img src="man/figures/logo.png" align="right" height="139" alt="acciddasuite website" /></a>
 
 <!-- badges: start -->
 <!-- badges: end -->
