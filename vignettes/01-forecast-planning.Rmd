@@ -22,19 +22,21 @@ Disease forecasting is an important tool for public health, however, to maximize
 ## Step 1: Why are we interested in forecasting?
 First, there needs to be a clearly defined project to get started. Here are a set of questions to consider to begin this process:
 
-1. What is the question that you are attempting to answer? Or what information are you seeking?
+1. What is the question that you are attempting to answer? Or what insights do you hope to gain?
 
-  - Determine what it is you are trying to gain from the forecasting project. Being specific here may be more useful in determining your approach. 
-  - For example, 
+    - Determine what it is you are trying to gain from the forecasting project. Being specific here will be useful in determining your approach.
 
-2. Who is the audience or who is requesting the information?
+2. Who is the audience or who will benefit from the insights?
 
-  - Documenting who will use the forecasts and how will assist in the interpretation of the forecasting output.
+    - Documenting who will use the forecasts and how will assist in the interpretation of the forecasting output.
   
-3. How far into the future are you interested in forecasting?
+3. How far into the future are you interested in forecasting? 
+      How far into the future do these insights need to be to be useful?
+          What aspects of a forecast need to be accurate?
 
-  - Clearly defining what you think is going to be useful information will determine how to approach the problems and if forecasting is the best tool.
-  - For example, seasonal influenza forecasting typically involves predictions 1 to 4 weeks into the future. Forecasts provide a range of possible trajectories for that time period. Predicting a specific number, such as the number of total hospitalizations during that time period would require a different approach and models.
+    - Clearly defining what you think is going to be useful information will determine how to approach the problems and if forecasting is the best tool.
+    
+    - For example, seasonal influenza forecasting typically involves predictions 1 to 4 weeks into the future. Forecasts provide a range of possible trajectories for that time period. Predicting a specific number, such as the number of total hospitalizations during that time period would require a different approach and models.
   
 Answer prior to proceeding:
 
@@ -47,27 +49,34 @@ NO  → Continue defining the approach
 ## Step 2: Define Your Data
 Next, defining what pathogen, the target (time series data), the geographical area, and the time resolution in order to know what data is required for the forecasting project.
 
-1. What *pathogen(s)* are you interested in forecasting?
+1. What *pathogen(s)* are you interested in?
 
 While straight-forward and possibly answered in the step above, ensuring you are clear on which pathogen (e.g., influenza, COVID-19, RSV, etc) is being forecasted is important.
 
-2. What are you interested in forecasting? This is also referred to as the *target*.
+2. What outcomes do you measure for this pathogen?
 
-Determining what is specifically being forecasted will important in the data collection steps.
+3. Which of these outcomes is most relevant to the questions, insights, and your audience? 
+
+4. These outcomes are also referred to as the *target*. More importantly, how timely is this target reported?
+
+    - Is the timing of the target adequate enough for updating forecasts and evaluation? 
+
+Determining what is specifically being forecasted will important in the data collection steps. 
 
 Some examples of forecasting targets:
-  - Reported cases
-  - Hospital Admissions
-  - Deaths
-  - Emergency Department (ED) visits related to disease-like illnesses
+
+    - Reported cases of influenza
+    - COVID-19 Hospitalizations
+    - Respiratory disease deaths
+    - Emergency Department (ED) visits related to respiratory disease-like illnesses
   
-3. What *spatial unit* are you interested in forecasting? 
+3. What *spatial unit* will provide the best insight? Are these data available at that scale? 
 
 This may include, but are not limited to:
 
-  - State, county, city, health jurisdiction, hospital system, or even facility
+    - State, county, city, health jurisdiction, hospital system, or even facility (e.g., hospital)
   
-4. What *time resolution* are you interested in forecasting? 
+4. What *time resolution* is adaquate and available to provide the required information for the audience? 
 
 Planning the time steps is important for determining if your data is consistently and readily available for that resolution. Also, this will assist in thinking about the reporting delays or lag time for each of these time steps. 
 
