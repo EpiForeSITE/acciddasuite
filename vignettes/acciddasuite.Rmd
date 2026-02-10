@@ -20,9 +20,13 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The `acciddasuite` package provides tools for building infectious disease forecasts...? This vignette demonstrates how the standard frameworks create and evaluate forecasts using R.
+The `acciddasuite` package provides comprehensive tools, models, and information for building infectious disease forecasts using either national or state-level data. This forecasting suite is focused on using time series data (surveillance data) for public health use to create an ensemble of outputs from statistical models, evaluation and visualization tools.   
 
-We will aim to demonstrate the basic steps in a forecasting task, as defined by [Hyndman & Athanasopoulos (2021)](https://otexts.com/fpp3/basic-steps.html).
+This series of vignettes demonstrate how the standard frameworks create and evaluate forecasts using R.
+
+This forecasting suite is initially being set up to run within the Fable framework, a tidyverse-based alternative for time series forecasting in R.
+
+We will aim to demonstrate the basic steps in a forecasting task, as defined by [Hyndman & Athanasopoulos (2021)](https://otexts.com/fpp3/basic-steps.html). Updated forecasting package information can be found [here](https://robjhyndman.com/hyndsight/forecast9.html).
 
 # Statistical Modelling
 
