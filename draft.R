@@ -7,10 +7,8 @@ top_n = 3
 extra_models = NULL
 
 x = get_fcast(df, eval_start_date)
-x
-x$plot
-x$hubcast
-x$score
+to_respilens(x) |> jsonlite::write_json("respi.json", auto_unbox = TRUE)
+
 
 library(ggplot2)
 x$hubcast$model_out_tbl |>
@@ -37,24 +35,3 @@ x$hubcast$model_out_tbl |>
         color = "black",
         size = 1
     )
-
-
-# RESPILENS
-x$hubcast$model_out_tbl |>
-    mutate(
-        location = "36"
-    ) |>
-    write.csv("model_data.csv", row.names = FALSE)
-
-df |>
-    mutate(
-        location = "36"
-    ) |>
-    write.csv("target_data.csv", row.names = FALSE)
-
-# Rscript scripts/external_to_projections.R \
-#   --output-path '/Users/cy/Documents/PROJECTS LOCAL/RespiLens' \
-#   --pathogen flu \
-#   --data-path '/Users/cy/Documents/PROJECTS LOCAL/acciddasuite/model_data.csv'\
-#   --target-data-path '/Users/cy/Documents/PROJECTS LOCAL/acciddasuite/target_data.csv' \
-#   --locations-data-path '/Users/cy/Documents/PROJECTS LOCAL/RespiLens/data/locations.csv'
