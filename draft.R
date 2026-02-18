@@ -12,6 +12,9 @@ extra_models = list(
     )
 )
 
+x = get_fcast(df, eval_start_date)
+to_respilens(x) |> jsonlite::write_json("respi.json", auto_unbox = TRUE)
+
 x = get_fcast(df, eval_start_date, extra_models = extra_models)
 x
 x$plot

@@ -6,3 +6,8 @@ inst/doc
 /.quarto/
 docs
 .DS_Store
+
+# R workspace and history
+.RData
+.Rhistory
+.Ruserdata
