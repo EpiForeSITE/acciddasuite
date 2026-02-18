@@ -118,31 +118,6 @@ forecasts_key <- function(model_out_tbl) {
 }
 
 
-#' @param model_out_tbl Forecast tibble from `get_fcast()`.
-#' @param unique_locs List. The locations for which there was data processed.
-#' @returns JSON-style named list structure to satisfy the RespiLens metadata.json file (one per data dump).
-metadata_file <- function(model_out_tbl, unique_locs) {
-  all_models <- sort(unique(model_out_tbl$model_id))
-  timestamp <- format(as.POSIXlt(Sys.time(), tz = "UTC"), "%Y-%m-%dT%H:%M:%SZ")
-  active_loc_data <- loc_data |>
-    dplyr::filter(abbreviation %in% unique_locs)
-  locations_list <- lapply(seq_len(nrow(active_loc_data)), function(i) {
-    row <- active_loc_data[i, ]
-    list(
-      location = as.character(row$location),
-      abbreviation = as.character(row$abbreviation),
-      location_name = as.character(row$location_name),
-      population = as.numeric(row$population)
-    )
-  })
-  return(list(
-    last_updated = timestamp,
-    models = all_models,
-    locations = locations_list
-  ))
-}
-
-
 #' @param accida_cast An object of class `accida_cast`, the output of `get_fcast()`.
 #'
 #' @return A named list with a single metadata JSON structure and one JSON structure per location.
