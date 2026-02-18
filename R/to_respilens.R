@@ -32,8 +32,10 @@ metadata_key <- function(model_out_tbl) {
 }
 
 
+#' Ground truth key
 #' @param oracle_output Ground truth tibble from `get_fcast()`.
 #' @return JSON-style named list structure to satisfy the RespiLens `ground_truth` key.
+#' @noRd
 ground_truth_key <- function(oracle_output) {
   if (nrow(oracle_output) == 0) {
     return(list(dates = list()))
@@ -60,8 +62,10 @@ ground_truth_key <- function(oracle_output) {
 }
 
 
+#' Forecasts key
 #' @param model_out_tbl Forecast tibble from `get_fcast()`.
 #' @return JSON-style named list structure to satisfy the RespiLens `forecasts` key.
+#' @noRd
 forecasts_key <- function(model_out_tbl) {
   # Build JSON structure with nesting
   forecasts <- list()
@@ -118,9 +122,10 @@ forecasts_key <- function(model_out_tbl) {
 }
 
 
+#' Convert accida_cast to RespiLens format
 #' @param accida_cast An object of class `accida_cast`, the output of `get_fcast()`.
-#'
 #' @return A named list with a single metadata JSON structure and one JSON structure per location.
+#' @noRd
 to_respilens <- function(accida_cast) {
   #check it is of class `accida_cast`
   if (!inherits(accida_cast, "accida_cast")) {

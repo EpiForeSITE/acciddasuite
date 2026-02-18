@@ -20,5 +20,19 @@ utils::globalVariables(c(
   ".mean",
   "lower",
   "upper",
-  "95%"
+  "95%",
+  # fable_to_hub / forecasts_key
+  "reference_date",
+  "horizon",
+  "output_type",
+  # ground_truth_key
+  "oracle_value",
+  # forecasts_key / to_respilens / metadata_key
+  "target",
+  # metadata_key (package dataset)
+  "loc_data",
+  # get_fcast plot
+  "q95",
+  "q95_lower",
+  "q95_upper"
 ))

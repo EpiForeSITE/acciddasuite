@@ -30,7 +30,11 @@ Suggests:
     rmarkdown,
     devtools,
     pipetime,
+    fable.prophet,
+    jsonlite,
     testthat (>= 3.0.0)
+Remotes:
+    hubverse-org/hubEvals
 VignetteBuilder: knitr
 Depends: 
     R (>= 3.5)

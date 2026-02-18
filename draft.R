@@ -1,9 +1,5 @@
 # devtools::load_all()
 df <- get_data(pathogen = "rsv", geo_values = "ny")
-df
-eval_start_date = "2025-09-01"
-h = 4
-top_n = 5
 extra_models = list(
     EPIESTIM = EPIESTIM(
         observation,
@@ -12,10 +8,15 @@ extra_models = list(
     )
 )
 
-x = get_fcast(df, eval_start_date)
+x = get_fcast(
+    df,
+    eval_start_date = "2025-09-01",
+    h = 3,
+    top_n = 5,
+    extra_models = extra_models
+)
 to_respilens(x) |> jsonlite::write_json("respi.json", auto_unbox = TRUE)
 
-x = get_fcast(df, eval_start_date, extra_models = extra_models)
 x
 x$plot
 x$hubcast
@@ -46,4 +47,6 @@ x$hubcast$model_out_tbl |>
         group = 1,
         color = "black",
         size = 1
-    )
+    ) +
+    labs(x = "Target end date", y = "Value") +
+    theme_classic()

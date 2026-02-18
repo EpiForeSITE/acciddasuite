@@ -1,8 +1,8 @@
 ---
-title: "1. Disease Forecast Planning for Public Health"
+title: "Disease Forecast Planning for Public Health"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Forecast Planning for Public Health: Define Your Approach}
+  %\VignetteIndexEntry{Disease Forecast Planning for Public Health}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

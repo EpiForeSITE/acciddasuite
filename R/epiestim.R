@@ -40,6 +40,8 @@ specials_epiestim <- fabletools::new_specials(
 #' @importFrom projections project
 #' @importFrom incidence as.incidence
 #' @importFrom distributional dist_sample
+#' @importFrom utils tail
+#' @importFrom stats na.omit
 EPIESTIM <- function(
   formula,
   mean_si,
@@ -217,11 +219,11 @@ glance.model_epiestim <- function(x, ...) {
   )
 }
 
-#' @importFrom fabletools fitted
+#' @importFrom stats fitted
 #' @export
 fitted.model_epiestim <- function(object, ...) rep(NA_real_, object$n_obs)
 
-#' @importFrom fabletools residuals
+#' @importFrom stats residuals
 #' @export
 residuals.model_epiestim <- function(object, ...) rep(NA_real_, object$n_obs)
 

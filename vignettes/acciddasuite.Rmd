@@ -80,7 +80,7 @@ Default models are:\
 **ETS**: Exponential Smoothing state space model (automatically selected).\ **ARIMA**: Auto-Regressive Integrated Moving Average model (automatically selected).
 
 
-```{r, models, eval = FALSE}
+```{r, models}
 fcast = get_fcast(
   df,
   eval_start_date = eval_start_date,
@@ -97,21 +97,34 @@ fcast$score
 
 
 ## Adding `extra_models`
-Example using `EspiEstim` with `projections`.
-```{r, extra-models, eval = FALSE}
-
+Additonal models can be added to the forecasting suite by defining them in a list and passing them to `get_fcast()`. The models should be compatible with the fable framework (see [fable documentation](https://fabletools.tidyverts.org/articles/extension_models.html) for more information).
+```{r, extra-models}
+library(fable)
+library(fable.prophet)
 extra <- list(
   CUSTOM_ARIMA = ARIMA(observation ~ pdq(1,1,0)),
-  PROPHET = fable.prophet::prophet(observation ~ season("yearly"))
-  #EPIESTIM = ...
+  PROPHET = prophet(observation ~ season("year")),
+  EPIESTIM = EPIESTIM(observation, mean_si = 3, std_si = 2, rt_window = 7)
 )
 
 fcast = get_fcast(
   df,
   eval_start_date = eval_start_date,
   top_n = 4, # Select top 4 models
-  h = 4, # forecast 4 weeks ahead,
+  h = 3, # forecast 3 weeks ahead,
   extra_models = extra
 ) |>
   time_pipe("forecasting")
+
+fcast
+```
+
+
+# Submit to MyRespiLens
+[RespiLens](https://www.respilens.com/) is a platform for sharing and visualizing respiratory disease forecasts. To submit forecasts to RespiLens, you can use the `to_respilens()` with `jsonlite::write_json()` to save a JSON file in the required format. You can then upload this file to MyRespiLens [here](https://www.respilens.com/myrespilens).
+
+```{r, to-respilens, eval = FALSE}
+library(jsonlite)
+to_respilens(fcast) |>
+  jsonlite::write_json("respilens.json", pretty = TRUE, auto_unbox = TRUE)
 ```
