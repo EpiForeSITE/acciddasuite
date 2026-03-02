@@ -42,9 +42,15 @@ library(ggplot2)
 library(pipetime)
 library(acciddasuite)
 df <- get_data(pathogen = "covid", geo_values = "ny")
-summary(df)
+head(df)
 
 ```
+
+```{r, to_csv, echo = FALSE}
+df |> write.csv("example_data.csv", row.names = FALSE)
+```
+
+To look at what `df` looks like, you can access the example `csv` file here: [df.csv]("https://raw.githubusercontent.com/acciddasuite/main/example_data.csv").
 
 ## Time Series Cross-Validation
 
