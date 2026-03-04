@@ -7,9 +7,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-# Data Requirements (test test test)
+# Utilizing external ground truth data
 
-To use `acciddasuite`, your data must follow the specific schema outlined below.
+If you would like to use your own ground truth data as the `df` parameter for modeling in `get_fcast()`, you must coerce your data to adhere to the format described below.
 
 ```{r, echo=FALSE}
 DiagrammeR::mermaid("

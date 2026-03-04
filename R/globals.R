@@ -30,7 +30,6 @@ utils::globalVariables(c(
   # forecasts_key / to_respilens / metadata_key
   "target",
   # metadata_key (package dataset)
-  "loc_data",
   # get_fcast plot
   "q95",
   "q95_lower",
