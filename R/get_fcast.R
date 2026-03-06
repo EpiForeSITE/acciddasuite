@@ -78,6 +78,8 @@ get_fcast <- function(
   stopifnot(
     is.data.frame(df),
     all(c("target_end_date", "observation", "target", "location") %in% names(df)),
+    length(unique(df$target)) == 1,
+    length(unique(df$location)) == 1,
     is.numeric(h),
     length(h) == 1,
     h > 0,

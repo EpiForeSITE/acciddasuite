@@ -142,10 +142,11 @@ to_respilens <- function(accida_cast) {
   model_out_tbl <- model_out_tbl |>
     dplyr::filter(output_type != "sample")
 
-  loc <- unique(model_out_tbl$location)
+  model_loc <- unique(model_out_tbl$location)
+  gt_loc <-unique(oracle_output$location)
 
-  if (length(loc) != 1) {
-    stop("Expected exactly one location.")
+  if (length(model_loc) != 1 || length(gt_loc) != 1) {
+    stop("Expected exactly one location in input data.")
   }
 
   return(
