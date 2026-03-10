@@ -1,25 +1,18 @@
 #' Build RespiLens metadata key from `model_out_tbl` data
 #'
 #' @param model_out_tbl Forecast tibble from `get_fcast()`.
+#' @param loc Location string.
 #' @return Named list for RespiLens metadata key
-metadata_key <- function(model_out_tbl) {
+metadata_key <- function(model_out_tbl, loc) {
   # remove peak targets
   df <- model_out_tbl |>
     dplyr::filter(!grepl("peak", target, ignore.case = TRUE))
 
-  abbr <- df$location[[1]]
-  loc_row <- loc_data[loc_data$abbreviation == abbr, ]
-
-  # safety check
-  if (nrow(loc_row) == 0 || any(is.na(loc_row$location_name))) {
-    stop("Location not found in loc_data.")
-  }
-
   list(
-    location = loc_row$location,
-    abbreviation = loc_row$abbreviation,
-    location_name = loc_row$location_name,
-    population = loc_row$population,
+    location = loc,
+    abbreviation = loc,
+    location_name = loc,
+    population = 0,
     dataset = "ACCIDDA Suite",
     series_type = "projection",
     hubverse_keys = list(
@@ -124,6 +117,7 @@ forecasts_key <- function(model_out_tbl) {
 
 #' Convert accida_cast to RespiLens format
 #' @param accida_cast An object of class `accida_cast`, the output of `get_fcast()`.
+#' @param loc A character string that describes the location of the data provided.
 #' @return A named list with a single metadata JSON structure and one JSON structure per location.
 #' @noRd
 to_respilens <- function(accida_cast) {
@@ -148,15 +142,16 @@ to_respilens <- function(accida_cast) {
   model_out_tbl <- model_out_tbl |>
     dplyr::filter(output_type != "sample")
 
-  loc <- unique(model_out_tbl$location)
+  model_loc <- unique(model_out_tbl$location)
+  gt_loc <-unique(oracle_output$location)
 
-  if (length(loc) != 1) {
-    stop("Expected exactly one location.")
+  if (length(model_loc) != 1 || length(gt_loc) != 1) {
+    stop("Expected exactly one location in input data.")
   }
 
   return(
     list(
-      metadata = metadata_key(model_out_tbl),
+      metadata = metadata_key(model_out_tbl, loc),
       ground_truth = ground_truth_key(oracle_output),
       forecasts = forecasts_key(model_out_tbl)
     )
