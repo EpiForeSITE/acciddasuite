@@ -3,10 +3,11 @@
 #' @param model_out_tbl Forecast tibble from `get_fcast()`.
 #' @param loc Location string.
 #' @return Named list for RespiLens metadata key
-metadata_key <- function(model_out_tbl, loc) {
+metadata_key <- function(model_out_tbl) {
   # remove peak targets
   df <- model_out_tbl |>
     dplyr::filter(!grepl("peak", target, ignore.case = TRUE))
+  loc <- model_out_tbl$location[1]
 
   list(
     location = loc,
@@ -151,7 +152,7 @@ to_respilens <- function(accida_cast) {
 
   return(
     list(
-      metadata = metadata_key(model_out_tbl, loc),
+      metadata = metadata_key(model_out_tbl),
       ground_truth = ground_truth_key(oracle_output),
       forecasts = forecasts_key(model_out_tbl)
     )
