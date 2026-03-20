@@ -37,7 +37,7 @@ library(dplyr)
 library(ggplot2)
 library(pipetime)
 library(acciddasuite)
-df <- get_data(pathogen = "covid", geo_values = "ny")
+df <- get_data(pathogen = "covid", geo_values = "nc")
 head(df)
 
 ```
@@ -53,9 +53,11 @@ To look at what `df` looks like, you can access the example `csv` file here: [ex
 To evaluate model performance, we employ *time series cross-validation*. 
 We fit models using the data available up to a specific cutoff point (`eval_start_date`), then forecast `h` weeks ahead with expanding windows. The further back in time `eval_start_date` is, the more computationally intensive the evaluation step will be.
 
+We visualize the data and decide on the `eval_start_date`.
+
 ```{r, tscv-setup}
-# We ony evaluate on the last 30 days of data for demonstration purposes
-eval_start_date <- max(df$target_end_date) - 30
+# We only evaluate on the last 90 days of data for demonstration purposes
+eval_start_date <- max(df$target_end_date) - 90
 ```
 
 Default models are:  
