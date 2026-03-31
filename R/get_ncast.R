@@ -217,7 +217,7 @@ get_ncast <- function(
     ggplot2::scale_fill_manual(
       values = c("95% CrI" = "grey30", "50% CrI" = "grey30"),
       guide = ggplot2::guide_legend(
-        override.aes = list(alpha = c(0.2, 0.4))
+        override.aes = list(alpha = c(0.4, 0.2))
       )
     ) +
     ggplot2::labs(x = "Date", y = tgt, subtitle = loc, fill = NULL) +
